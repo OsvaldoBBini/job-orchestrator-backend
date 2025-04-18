@@ -25,6 +25,7 @@ class User(Base):
   __tablename__ = "users"
   id: Mapped[str] = mapped_column(String, primary_key=True)
   name: Mapped[str] = mapped_column(String)
+  email: Mapped[str] = mapped_column(String)
   role: Mapped["Role"] = relationship(back_populates="users")
   jobs: Mapped[List["UserJobPermission"]] = relationship(back_populates="user", cascade="all, delete-orphan")
   role_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
