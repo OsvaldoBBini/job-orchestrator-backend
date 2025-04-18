@@ -1,4 +1,53 @@
-from sqlalchemy.orm import DeclarativeBase
+from typing import List, Optional
+from sqlalchemy import String, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-class Base(DeclarativeBase):
-  pass
+from job_orchestrator_backend.src.infra.persistence.models import Base
+
+class Job(Base):
+  __tablename__ = "jobs"
+  id: Mapped[str] = mapped_column(String, primary_key=True)
+  name: Mapped[str] = mapped_column(String)
+  owner: Mapped[str] = mapped_column(String)
+  file_id: Mapped[str] = mapped_column(String)
+  logs = Mapped[List["Log"]] = relationship(back_populates="job", cascade="all, delete-orphan")
+  users: Mapped[List["UserJobPermission"]] = relationship(back_populates="job", cascade="all, delete-orphan")
+
+class Log(Base):
+  __tablename__ = "logs"
+  id: Mapped[str] = mapped_column(String, primary_key=True)
+  log_id: Mapped[str] = mapped_column(String, ForeignKey("jobs.id", ondelete="CASCADE"))
+  status: Mapped[str] = mapped_column(String)
+  description: Mapped[str] = mapped_column(String)
+  job = Mapped["Job"] = relationship("Job", back_populates="logs")
+  
+class User(Base):
+  __tablename__ = "users"
+  id: Mapped[str] = mapped_column(String, primary_key=True)
+  name: Mapped[str] = mapped_column(String)
+  role: Mapped["Role"] = relationship(back_populates="users")
+  jobs: Mapped[List["UserJobPermission"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+  role_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
+
+class Role(Base):
+  __tablename__ = "roles"
+  id: Mapped[str] = mapped_column(String, primary_key=True)
+  role_description: Mapped[str] = mapped_column(String) 
+  users: Mapped[List["User"]] = relationship(back_populates="role")
+
+class PermissionLevel(Base):
+  __tablename__ = "permission_levels"
+  id: Mapped[str] = mapped_column(String, primary_key=True)
+  name: Mapped[str] = mapped_column(String)
+  permissions: Mapped[List["UserJobPermission"]] = relationship(back_populates="permission")
+
+class UserJobPermission(Base):
+  __tablename__ = "user_job_permissions"
+  id: Mapped[str] = mapped_column(String, primary_key=True)
+  user_id: Mapped[str] = mapped_column(String, ForeignKey("users.id", ondelete="CASCADE"))
+  job_id: Mapped[str] = mapped_column(String, ForeignKey("jobs.id", ondelete="CASCADE"))
+  permission_level_id: Mapped[str] = mapped_column(String, ForeignKey("permission_levels.id", ondelete="CASCADE"))
+  user: Mapped["User"] = relationship("User", back_populates="jobs")
+  job: Mapped["Job"] = relationship("Job", back_populates="users")
+  permission: Mapped["PermissionLevel"] = relationship("PermissionLevel", back_populates="permissions") 
+
