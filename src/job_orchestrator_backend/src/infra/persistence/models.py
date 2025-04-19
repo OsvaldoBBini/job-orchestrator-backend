@@ -26,15 +26,7 @@ class User(Base):
   id: Mapped[str] = mapped_column(String, primary_key=True)
   name: Mapped[str] = mapped_column(String)
   email: Mapped[str] = mapped_column(String)
-  role: Mapped["Role"] = relationship(back_populates="users")
   jobs: Mapped[List["UserJobPermission"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-  role_id: Mapped[Optional[str]] = mapped_column(String, ForeignKey("roles.id", ondelete="SET NULL"), nullable=True)
-
-class Role(Base):
-  __tablename__ = "roles"
-  id: Mapped[str] = mapped_column(String, primary_key=True)
-  role_description: Mapped[str] = mapped_column(String) 
-  users: Mapped[List["User"]] = relationship(back_populates="role")
 
 class PermissionLevel(Base):
   __tablename__ = "permission_levels"
