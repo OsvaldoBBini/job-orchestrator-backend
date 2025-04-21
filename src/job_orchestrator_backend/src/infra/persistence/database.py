@@ -1,9 +1,8 @@
-import os
 from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from job_orchestrator_backend.src.infra.commun.settings import connection_url
-from job_orchestrator_backend.src.infra.persistence.base import Base
+from job_orchestrator_backend.src.infra.persistence.models import Base
 
 class DataBase:
   def __init__(self):

@@ -1,8 +1,10 @@
 from typing import List, Optional
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase
 
-from job_orchestrator_backend.src.infra.persistence.base import Base
+class Base(DeclarativeBase):
+  pass
 
 class Job(Base):
   __tablename__ = "jobs"
@@ -10,7 +12,8 @@ class Job(Base):
   name: Mapped[str] = mapped_column(String)
   owner: Mapped[str] = mapped_column(String)
   file_id: Mapped[str] = mapped_column(String)
-  logs = Mapped[List["Log"]] = relationship(back_populates="job", cascade="all, delete-orphan")
+  time_trigger: Mapped[str] = mapped_column(String)
+  logs: Mapped[List["Log"]] = relationship(back_populates="job", cascade="all, delete-orphan")
   users: Mapped[List["UserJobPermission"]] = relationship(back_populates="job", cascade="all, delete-orphan")
 
 class Log(Base):
@@ -19,7 +22,7 @@ class Log(Base):
   log_id: Mapped[str] = mapped_column(String, ForeignKey("jobs.id", ondelete="CASCADE"))
   status: Mapped[str] = mapped_column(String)
   description: Mapped[str] = mapped_column(String)
-  job = Mapped["Job"] = relationship("Job", back_populates="logs")
+  job: Mapped["Job"] = relationship("Job", back_populates="logs")
   
 class User(Base):
   __tablename__ = "users"
