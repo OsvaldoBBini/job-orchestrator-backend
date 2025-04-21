@@ -1,16 +1,13 @@
 import os
 from contextlib import contextmanager
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from job_orchestrator_backend.src.infra.persistence.models import Base
-
-load_dotenv()
+from job_orchestrator_backend.src.infra.commun.settings import connection_url
+from job_orchestrator_backend.src.infra.persistence.base import Base
 
 class DataBase:
   def __init__(self):
-    self._connection_url = os.getenv("DB_URL")
+    self._connection_url = connection_url
     self._engine = create_engine(self._connection_url, echo=True, future=True)
     self._SessionLocal = sessionmaker(bind=self._engine, autoflush=False, autocommit=False)
 

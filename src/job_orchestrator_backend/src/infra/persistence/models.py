@@ -2,7 +2,7 @@ from typing import List, Optional
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from job_orchestrator_backend.src.infra.persistence.models import Base
+from job_orchestrator_backend.src.infra.persistence.base import Base
 
 class Job(Base):
   __tablename__ = "jobs"
