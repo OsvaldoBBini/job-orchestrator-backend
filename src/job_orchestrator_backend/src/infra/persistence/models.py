@@ -11,7 +11,7 @@ class Job(Base):
   id: Mapped[str] = mapped_column(String, primary_key=True)
   name: Mapped[str] = mapped_column(String)
   owner: Mapped[str] = mapped_column(String)
-  file_id: Mapped[str] = mapped_column(String)
+  dir_id: Mapped[str] = mapped_column(String)
   time_trigger: Mapped[str] = mapped_column(String)
   logs: Mapped[List["Log"]] = relationship(back_populates="job", cascade="all, delete-orphan")
   users: Mapped[List["UserJobPermission"]] = relationship(back_populates="job", cascade="all, delete-orphan")
