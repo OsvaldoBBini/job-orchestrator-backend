@@ -1,2 +1,2 @@
 print('OI')
-raise Exception("error esperado")
+# raise Exception("error esperado")
