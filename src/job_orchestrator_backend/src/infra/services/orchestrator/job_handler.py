@@ -1,8 +1,11 @@
 import os
+from job_orchestrator_backend.src.domain.entities.job_response import JobResponseDto
+from job_orchestrator_backend.src.domain.factories.language_factory import LanguageFactoryInterface
+from job_orchestrator_backend.src.domain.services.JobHandler.job_handler import JobHandlerInterface
 
-class JobHandler:
+class JobHandler(JobHandlerInterface):
 
-  def __init__(self, factory):
+  def __init__(self, factory: LanguageFactoryInterface):
     self._factory = factory
     self._dir_folder = os.path.join(os.getcwd(), "src\\codes")
   
@@ -16,7 +19,7 @@ class JobHandler:
     dependency_file = list(filter(lambda file: 'code' not in file, files))[0]
     return os.path.join(folder_path, code_file) , os.path.join(folder_path, dependency_file)
   
-  def execute_job(self, id: str):
+  def execute_job(self, id: str) -> JobResponseDto:
     code, dependency = self._get_files(id)
     file_type = self._check_code_file_type(file_name=code)
     language_handler = self._factory.handler(language=file_type) 
