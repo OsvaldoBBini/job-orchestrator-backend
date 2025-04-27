@@ -10,8 +10,9 @@ class PyHandler(LanguageHandlerInterface):
   def __init__(self):
     self._os_is_windows = os.name == "nt"
     self._temp_id = uuid.uuid4()
-    self._temp_path = os.path.join(os.getcwd(), f"temp{self._temp_id}")
-    self._venv_path = os.path.join(os.getcwd(), f"temp{self._temp_id}", "venv")
+    self._root_path = os.path.join(os.getcwd().split("src")[0], "src")
+    self._temp_path = os.path.join(self._root_path, f"temp\\temp{self._temp_id}")
+    self._venv_path = os.path.join(self._temp_path, "venv")
 
   def _return_message(self, response) -> JobResponseDto:
     if response.returncode == 1:
@@ -28,19 +29,22 @@ class PyHandler(LanguageHandlerInterface):
         return os.path.join(self._venv_path, "Scripts", "python.exe")
     return os.path.join(self._venv_path, "bin", "python")
 
-  def _dependency_handler(self, dependency: str):
-    os.makedirs(self._temp_path, exist_ok=True)
-    subprocess.run(["python", "-m", "venv", f"temp{self._temp_id}/venv"], check=True)
+  async def _dependency_handler(self, dependency: str):
+    subprocess.run(["python", "-m", "venv", self._venv_path], check=True)
     pip_path = self._dependency_installer()
     subprocess.run([pip_path, "install", "-r", dependency], capture_output=True, text=True)
 
-  def execute(self, path: str, dependency: str = None) -> JobResponseDto:
-    if dependency:
-      self._dependency_handler(dependency)
-      python_path = self._python_executer()
-      response = subprocess.run([python_path, path], capture_output=True, text=True)
+  async def execute(self, path: str, dependency: str = None) -> JobResponseDto:
+    try:
+      if dependency:
+        await self._dependency_handler(dependency)
+        python_path = self._python_executer()
+        response = subprocess.run([python_path, path], capture_output=True, text=True)
+      else:
+        response = subprocess.run(["python", path], capture_output=True, text=True)
+      return self._return_message(response=response)
+    except:
+      return JobResponseDto(message="Not able to run the job", status_code=500)
+    finally:
       if os.path.exists(self._temp_path):
         shutil.rmtree(self._temp_path)
-    else:
-      response = subprocess.run(["python", path], capture_output=True, text=True)   
-    return self._return_message(response=response)

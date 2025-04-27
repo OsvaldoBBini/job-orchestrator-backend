@@ -1,3 +1,4 @@
+
 from fastapi import FastAPI
 from job_orchestrator_backend.src.infra.persistence.database import database
 from job_orchestrator_backend.src.infra.services.orchestrator.job_handler import JobHandler
@@ -7,6 +8,6 @@ app = FastAPI()
 database.start_tables()
 
 @app.get("/")
-def read_root():
-    response = JobHandler(factory=LanguageFactory()).execute_job("1")
+async def read_root():
+    response = await JobHandler(factory=LanguageFactory()).execute_job("1")
     return response
